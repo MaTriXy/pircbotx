@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -17,6 +17,7 @@
  */
 package org.pircbotx.hooks.events;
 
+import com.google.common.collect.ImmutableMap;
 import org.pircbotx.PircBotX;
 import org.pircbotx.UserHostmask;
 import org.pircbotx.hooks.Event;
@@ -34,43 +35,56 @@ import lombok.NonNull;
 /**
  * This event is dispatched whenever someone (possibly us) parts a channel which
  * we are on.
- *
- * @author Leon Blakey
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class PartEvent extends Event implements GenericChannelUserEvent, GenericSnapshotEvent {
-	@Getter(onMethod = @_(
+	@Getter(onMethod = @__(
 			@Override))
 	protected final UserChannelDaoSnapshot userChannelDaoSnapshot;
 	/**
 	 * Snapshot of the channel as of before the user parted.
 	 */
-	@Getter(onMethod = @_(
+	@Getter(onMethod = @__(
 			@Override))
 	protected final ChannelSnapshot channel;
-	@Getter(onMethod = @_(
+	@Getter(onMethod = @__(
 			@Override))
 	protected final UserHostmask userHostmask;
 	/**
 	 * Snapshot of the user as of before the user parted.
 	 */
-	@Getter(onMethod = @_(
+	@Getter(onMethod = @__(
 			@Override))
 	protected final UserSnapshot user;
+	
+	
+	/**
+	 * Name of channel the user parted from.
+	 */
+	//Especially usefull when snapshots are disabled
+	protected final String channelName;
+	
 	/**
 	 * The reason for leaving the channel.
 	 */
 	protected final String reason;
 
-	public PartEvent(PircBotX bot, UserChannelDaoSnapshot daoSnapshot, ChannelSnapshot channel,
-			@NonNull UserHostmask userHostmask, UserSnapshot user, @NonNull String reason) {
+	/**
+	 * The IrcV3 tags
+	 */
+	protected final ImmutableMap<String, String> tags;
+
+	public PartEvent(PircBotX bot, UserChannelDaoSnapshot daoSnapshot, ChannelSnapshot channel, @NonNull String channelName,
+			@NonNull UserHostmask userHostmask, UserSnapshot user, @NonNull String reason, ImmutableMap<String, String> tags) {
 		super(bot);
 		this.userChannelDaoSnapshot = daoSnapshot;
 		this.channel = channel;
+		this.channelName = channelName;
 		this.userHostmask = userHostmask;
 		this.user = user;
 		this.reason = reason;
+		this.tags = tags;
 	}
 
 	/**

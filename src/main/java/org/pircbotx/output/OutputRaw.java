@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -22,42 +22,43 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 import org.pircbotx.PircBotX;
 import org.pircbotx.Utils;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import com.google.common.base.Splitter;
+import com.google.common.util.concurrent.RateLimiter;
 
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Send raw lines to the server with locking and message delay support.
- * <p>
- * @author Leon Blakey
  */
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Slf4j
 public class OutputRaw {
 	public static final Marker OUTPUT_MARKER = MarkerFactory.getMarker("pircbotx.output");
 	@NonNull
 	protected final PircBotX bot;
 	protected final ReentrantLock writeLock = new ReentrantLock(true);
-	protected final Condition writeNowCondition = writeLock.newCondition();
-	protected final long delayNanos;
-	protected long lastSentLine = 0;
-
+	
+	
+	protected final RateLimiter limiter;
+	
 	public OutputRaw(PircBotX bot) {
 		this.bot = bot;
-		this.delayNanos = bot.getConfiguration().getMessageDelay() * 1000000;
+		long delayMs = bot.getConfiguration().getMessageDelay().getDelay(); 
+		
+		if (delayMs >= 1)
+			limiter = RateLimiter.create(1000.0 / delayMs);
+		else
+			limiter = RateLimiter.create(10000);
 	}
 
 	/**
@@ -66,23 +67,33 @@ public class OutputRaw {
 	 * @param line The raw line to send to the IRC server.
 	 */
 	public void rawLine(String line) {
+		rawLine(line, null); 
+	}
+	
+	
+	/**
+	 * Sends a raw line through the outgoing message queue.
+	 *
+	 * @param line The raw line to send to the IRC server.
+	 * @param logline the line to be used in log, if you don't want the real line logged because it contains secrets.
+	 */
+	public void rawLine(String line, String logline) {
 		checkArgument(StringUtils.isNotBlank(line), "Cannot send empty line to server: '%s'", line);
-		checkArgument(bot.isConnected(), "Not connected to server");
+		checkArgument(bot.isConnected(), "Not connected to server");				
+		
+		limiter.acquire();
+		
+		if (StringUtils.isNotBlank(logline))
+			log.info(OUTPUT_MARKER, logline);
+		else
+			log.info(OUTPUT_MARKER, line);		
 		writeLock.lock();
+
+		
 		try {
-			//Block until we can send, taking into account a changing lastSentLine
-			long curNanos = System.nanoTime();
-			while (lastSentLine + delayNanos > curNanos) {
-				writeNowCondition.await(lastSentLine + delayNanos - curNanos, TimeUnit.NANOSECONDS);
-				curNanos = System.nanoTime();
-			}
-			log.info(OUTPUT_MARKER, line);
 			Utils.sendRawLineToServer(bot, line);
-			lastSentLine = System.nanoTime();
 		} catch (IOException e) {
 			throw new RuntimeException("IO exception when sending line to server, is the network still up? " + exceptionDebug(), e);
-		} catch (InterruptedException e) {
-			throw new RuntimeException("Couldn't pause thread for message delay. " + exceptionDebug(), e);
 		} catch (Exception e) {
 			throw new RuntimeException("Could not send line to server. " + exceptionDebug(), e);
 		} finally {
@@ -95,29 +106,32 @@ public class OutputRaw {
 	 * the message delay for messages waiting to send
 	 *
 	 * @param line The raw line to send to the IRC server.
-	 * @see #rawLineNow(java.lang.String, boolean)
+	 * @see #rawLineNow(java.lang.String, java.lang.String)
 	 */
 	public void rawLineNow(String line) {
-		rawLineNow(line, false);
+		rawLineNow(line, null);
 	}
 
 	/**
 	 * Sends a raw line to the IRC server as soon as possible
 	 * <p>
 	 * @param line The raw line to send to the IRC server
-	 * @param resetDelay If true, pending messages will reset their delay.
+	 * @param logline the line to be used in log, if you don't want the real line logged because it contains secrets.
 	 */
-	public void rawLineNow(String line, boolean resetDelay) {
+	public void rawLineNow(String line, String logline) {
 		checkNotNull(line, "Line cannot be null");
 		checkArgument(bot.isConnected(), "Not connected to server");
+		
+		if (StringUtils.isNotBlank(logline))
+			log.info(OUTPUT_MARKER, logline);
+		else
+			log.info(OUTPUT_MARKER, line);		
 		writeLock.lock();
 		try {
-			log.info(OUTPUT_MARKER, line);
+			
 			Utils.sendRawLineToServer(bot, line);
-			lastSentLine = System.nanoTime();
-			if (resetDelay)
-				//Reset the 
-				writeNowCondition.signalAll();
+			
+
 		} catch (IOException e) {
 			throw new RuntimeException("IO exception when sending line to server, is the network still up? " + exceptionDebug(), e);
 		} catch (Exception e) {

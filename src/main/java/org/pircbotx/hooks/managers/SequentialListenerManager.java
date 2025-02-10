@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -18,11 +18,9 @@
 package org.pircbotx.hooks.managers;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -66,9 +64,6 @@ import org.slf4j.LoggerFactory;
  * overhead. Dangerous as blocking this thread could cause server timeouts.
  * Useful for bulk parsing and internal testing</li>
  * </ul>
- *
- *
- * @author Leon Blakey <leon.m.blakey at gmail.com>
  */
 @Builder
 public class SequentialListenerManager extends AbstractListenerManager {
@@ -76,8 +71,8 @@ public class SequentialListenerManager extends AbstractListenerManager {
 	/**
 	 * Key: The actual listener, Value: The wrapper that calls it
 	 */
-	protected final LinkedList<Listener> listeners = Lists.newLinkedList();
-	protected final LinkedList<ListenerExecutor> listenerExecutors = Lists.newLinkedList();
+	protected final LinkedList<Listener> listeners = new LinkedList<>();
+	protected final LinkedList<ListenerExecutor> listenerExecutors = new LinkedList<>();
 	/**
 	 * Creates threads used in sequential listeners
 	 */

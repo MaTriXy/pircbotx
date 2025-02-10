@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -17,6 +17,7 @@
  */
 package org.pircbotx.hooks.events;
 
+import com.google.common.collect.ImmutableMap;
 import javax.annotation.Nullable;
 import org.pircbotx.User;
 import lombok.Data;
@@ -30,8 +31,6 @@ import org.pircbotx.hooks.types.GenericUserModeEvent;
 
 /**
  * Called when the mode of a user is set.
- *
- * @author Leon Blakey
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -39,13 +38,13 @@ public class UserModeEvent extends Event implements GenericUserModeEvent {
 	/**
 	 * The user hostmask that set the mode.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 		@Override}))
 	protected final User userHostmask;
 	/**
 	 * The user that set the mode.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 		@Override,
 		@Nullable}))
 	protected final User user;
@@ -56,7 +55,7 @@ public class UserModeEvent extends Event implements GenericUserModeEvent {
 	/**
 	 * The user that the mode operation applies to.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 		@Override,
 		@Nullable}))
 	protected final User recipient;
@@ -64,15 +63,21 @@ public class UserModeEvent extends Event implements GenericUserModeEvent {
 	 * The mode that has been set.
 	 */
 	protected final String mode;
+	/**
+	 * The IrcV3 tags
+	 */
+	protected final ImmutableMap<String, String> tags;
 
 	public UserModeEvent(PircBotX bot, @NonNull UserHostmask userHostmask, User user,
-			@NonNull UserHostmask recipientHostmask, User recipient, @NonNull String mode) {
+			@NonNull UserHostmask recipientHostmask, User recipient, @NonNull String mode,
+      ImmutableMap<String, String> tags) {
 		super(bot);
 		this.userHostmask = user;
 		this.user = user;
 		this.recipientHostmask = recipientHostmask;
 		this.recipient = recipient;
 		this.mode = mode;
+		this.tags = tags;
 	}
 
 	/**

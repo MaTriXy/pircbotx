@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -18,7 +18,8 @@
 package org.pircbotx.hooks.managers;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,11 +39,9 @@ import org.pircbotx.hooks.Listener;
  * To mark a listener as a background listener, use {@link #addListener(org.pircbotx.hooks.Listener, boolean)
  * }
  * with isBackground set to true
- * <p>
- * @author Leon Blakey
  */
 public class BackgroundListenerManager extends ThreadedListenerManager {
-	protected Map<Listener, ExecutorService> backgroundListeners = Maps.newHashMap();
+	protected Map<Listener, ExecutorService> backgroundListeners = new HashMap<>();
 	protected final AtomicInteger backgroundCount = new AtomicInteger();
 
 	public void addListener(Listener listener, boolean isBackground) {

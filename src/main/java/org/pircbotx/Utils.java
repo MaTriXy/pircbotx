@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -37,8 +37,6 @@ import java.util.regex.Pattern;
 /**
  * Useful utilities for internal PircBotX use. Users should not use this class
  * directly
- *
- * @author Leon Blakey
  */
 public final class Utils {
 	//Do not create instances of this
@@ -167,7 +165,7 @@ public final class Utils {
 		//Heavily optimized string split by space with all characters after :
 		//added as a single entry. Under benchmarks, this is faster than 
 		//StringTokenizer, String.split, toCharArray, and charAt
-		String trimmedInput = CharMatcher.WHITESPACE.trimFrom(input);
+		String trimmedInput = CharMatcher.whitespace().trimFrom(input);
 		int pos = 0, end;
 		while ((end = trimmedInput.indexOf(' ', pos)) >= 0) {
 			stringParts.add(trimmedInput.substring(pos, end));

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -28,13 +28,12 @@ import org.pircbotx.UserLevel;
 
 /**
  *
- * @author Leon Blakey
  */
 public class UserChannelDaoSnapshot extends UserChannelDao<UserSnapshot, ChannelSnapshot> {
 	protected final String botNick;
 
-	public UserChannelDaoSnapshot(PircBotX bot, Locale locale, UserChannelMapSnapshot mainMap, EnumMap<UserLevel, UserChannelMap<UserSnapshot, ChannelSnapshot>> levelsMap, ImmutableMap<String, UserSnapshot> userNickMap, ImmutableMap<String, ChannelSnapshot> channelNameMap, ImmutableMap<String, UserSnapshot> privateUsers) {
-		super(bot, null, locale, mainMap, levelsMap, userNickMap, channelNameMap, privateUsers);
+	public UserChannelDaoSnapshot(PircBotX bot, Locale locale, UserChannelMapSnapshot mainMap, EnumMap<UserLevel, UserChannelMap<UserSnapshot, ChannelSnapshot>> levelsMap, ImmutableMap<String, UserSnapshot> userNickMap, ImmutableMap<String, ChannelSnapshot> channelNameMap) {
+		super(bot, null, locale, mainMap, levelsMap, userNickMap, channelNameMap);
 		botNick = bot.getNick();
 	}
 
@@ -75,11 +74,6 @@ public class UserChannelDaoSnapshot extends UserChannelDao<UserSnapshot, Channel
 
 	@Override
 	protected void addUserToChannel(UserSnapshot user, ChannelSnapshot channel) {
-		SnapshotUtils.fail();
-	}
-
-	@Override
-	protected void addUserToPrivate(UserSnapshot user) {
 		SnapshotUtils.fail();
 	}
 

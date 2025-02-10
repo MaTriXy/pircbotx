@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -17,6 +17,7 @@
  */
 package org.pircbotx.hooks.events;
 
+import com.google.common.collect.ImmutableMap;
 import javax.annotation.Nullable;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
@@ -32,8 +33,6 @@ import org.pircbotx.hooks.types.GenericChannelModeRecipientEvent;
 /**
  * This event is dispatched whenever someone (possibly us) is kicked from any of
  * the channels that we are in.
- *
- * @author Leon Blakey
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -41,32 +40,32 @@ public class KickEvent extends Event implements GenericChannelModeRecipientEvent
 	/**
 	 * The channel from which the recipient was kicked.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final Channel channel;
 	/**
 	 * The user hostmask that performed the kick.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final UserHostmask userHostmask;
 	/**
 	 * The user who performed the kick.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override,
 			@Nullable}))
 	protected final User user;
 	/**
 	 * The unfortunate recipient hostmask of the kick.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final UserHostmask recipientHostmask;
 	/**
 	 * The unfortunate recipient of the kick.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override,
 			@Nullable}))
 	protected final User recipient;
@@ -74,9 +73,14 @@ public class KickEvent extends Event implements GenericChannelModeRecipientEvent
 	 * The reason given by the user who performed the kick.
 	 */
 	protected final String reason;
+	/**
+	 * The IrcV3 tags
+	 */
+	protected final ImmutableMap<String, String> tags;
 
 	public KickEvent(PircBotX bot, @NonNull Channel channel, @NonNull UserHostmask userHostmask, User user,
-			@NonNull UserHostmask recipientHostmask, User recipient, @NonNull String reason) {
+			@NonNull UserHostmask recipientHostmask, User recipient, @NonNull String reason,
+      ImmutableMap<String, String> tags) {
 		super(bot);
 		this.channel = channel;
 		this.userHostmask = userHostmask;
@@ -84,6 +88,7 @@ public class KickEvent extends Event implements GenericChannelModeRecipientEvent
 		this.recipientHostmask = recipientHostmask;
 		this.recipient = recipient;
 		this.reason = reason;
+		this.tags = tags;
 	}
 
 	/**

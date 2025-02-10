@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -28,8 +28,8 @@ import com.google.common.util.concurrent.MoreExecutors;
 import static com.google.common.util.concurrent.Service.State;
 import static com.google.common.base.Preconditions.*;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -60,19 +60,17 @@ import org.slf4j.LoggerFactory;
  * shutdown
  * </ol> {@link #executeBot(org.pircbotx.PircBotX)} is overridable if you wish
  * to do your own connecting
- *
- * @author Leon Blakey
  */
 @Slf4j
 public class MultiBotManager {
 	protected static final AtomicInteger MANAGER_COUNT = new AtomicInteger();
 	protected final int managerNumber;
-	protected final LinkedHashMap<PircBotX, ListenableFuture<Void>> runningBots = Maps.newLinkedHashMap();
+	protected final LinkedHashMap<PircBotX, ListenableFuture<Void>> runningBots = new LinkedHashMap<>();
 	protected final BiMap<PircBotX, Integer> runningBotsNumbers = HashBiMap.create();
 	protected final Object runningBotsLock = new Object[0];
 	protected final ListeningExecutorService botPool;
 	//Code for starting
-	protected List<PircBotX> startQueue = Lists.newArrayList();
+	protected List<PircBotX> startQueue = new ArrayList<>();
 	protected State state = State.NEW;
 	protected final Object stateLock = new Object[0];
 
@@ -176,7 +174,7 @@ public class MultiBotManager {
 			runningBots.put(bot, future);
 			runningBotsNumbers.put(bot, bot.getBotId());
 		}
-		Futures.addCallback(future, new BotFutureCallback(bot));
+		Futures.addCallback(future, new BotFutureCallback(bot), MoreExecutors.directExecutor());
 		return future;
 	}
 	

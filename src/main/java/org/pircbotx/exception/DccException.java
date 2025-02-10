@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -23,8 +23,6 @@ import org.pircbotx.User;
 
 /**
  * A general exception for DCC errors
- *
- * @author Leon Blakey
  */
 public class DccException extends RuntimeException {
 	protected static final long serialVersionUID = 1L;
@@ -56,8 +54,6 @@ public class DccException extends RuntimeException {
 		CHAT_TIMEOUT,
 		FILE_TRANSFER_CANCELLED,
 		FILE_TRANSFER_TIMEOUT,
-		FILE_TRANSFER_RESUME_TIMEOUT,
-		FILE_TRANSFER_RESUME_CANCELLED,
 		DCC_PORTS_IN_USE
 	}
 }

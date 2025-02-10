@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -25,10 +25,10 @@ import org.testng.annotations.Test;
 
 /**
  *
- * @author Leon Blakey <leon.m.blakey at gmail.com>
  */
 public class ServerInfoTest {
 	@Test
+	@SuppressWarnings("resource")
 	public void rawParseTest() throws IOException, IrcException {
 		//Just make sure it doesn't throw an exception
 		new PircTestRunner(TestUtils.generateConfigurationBuilder())

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -30,8 +30,6 @@ import org.pircbotx.exception.DccException;
 
 /**
  * Send lines to a serverUser.
- *
- * @author Leon Blakey
  */
 @RequiredArgsConstructor
 public class OutputUser implements GenericChannelUserOutput {
@@ -122,18 +120,6 @@ public class OutputUser implements GenericChannelUserOutput {
 
 	public SendFileTransfer dccFile(File file, boolean passive) throws IOException, DccException, InterruptedException {
 		return bot.getDccHandler().sendFile(file, bot.getUserChannelDao().getUser(serverUser), passive);
-	}
-
-	public SendFileTransfer dccFileAndTransfer(File file) throws IOException, DccException, InterruptedException {
-		SendFileTransfer transfer = dccFile(file);
-		transfer.transfer();
-		return transfer;
-	}
-
-	public SendFileTransfer dccFileAndTransfer(File file, boolean passive) throws IOException, DccException, InterruptedException {
-		SendFileTransfer transfer = dccFile(file, passive);
-		transfer.transfer();
-		return transfer;
 	}
 
 	public SendChat dccChat() throws IOException, InterruptedException {

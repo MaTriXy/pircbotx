@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -22,12 +22,6 @@ package org.pircbotx;
  * section 6 of RFC 1459. Refer to RFC 1459 for further information.
  *
  * @since PircBot 1.0.0
- * @author Origionally by:
- * <a href="http://www.jibble.org/">Paul James Mutton</a> for <a
- * href="http://www.jibble.org/pircbot.php">PircBot</a>
- * <p>
- * Forked and Maintained by Leon Blakey in <a
- * href="http://github.com/thelq/pircbotx">PircBotX</a>
  */
 public final class ReplyConstants {
 	// Error Replies.
@@ -51,6 +45,7 @@ public final class ReplyConstants {
 	public static final int ERR_ERRONEUSNICKNAME = 432;
 	public static final int ERR_NICKNAMEINUSE = 433;
 	public static final int ERR_NICKCOLLISION = 436;
+	public static final int ERR_TARGETTOOFAST = 439;	
 	public static final int ERR_USERNOTINCHANNEL = 441;
 	public static final int ERR_NOTONCHANNEL = 442;
 	public static final int ERR_USERONCHANNEL = 443;

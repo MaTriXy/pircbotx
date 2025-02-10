@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -34,8 +34,6 @@ import org.pircbotx.hooks.types.GenericMessageEvent;
 
 /**
  * This event is dispatched whenever we receive a notice.
- *
- * @author Leon Blakey
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -43,13 +41,13 @@ public class NoticeEvent extends Event implements GenericMessageEvent, GenericCh
 	/**
 	 * The user hostmask that sent the hostmask.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final UserHostmask userHostmask;
 	/**
 	 * The user that sent the notice.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override,
 			@Nullable}))
 	protected final User user;
@@ -57,7 +55,7 @@ public class NoticeEvent extends Event implements GenericMessageEvent, GenericCh
 	 * The target channel of the notice. A value of <code>null</code> means that
 	 * the target is us
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final Channel channel;
 	/**

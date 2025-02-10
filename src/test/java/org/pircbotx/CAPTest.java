@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import static org.testng.Assert.*;
 import org.pircbotx.cap.EnableCapHandler;
 import org.pircbotx.cap.SASLCapHandler;
-import org.pircbotx.exception.CAPException;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.events.ExceptionEvent;
 import org.pircbotx.hooks.events.ServerResponseEvent;
@@ -31,11 +30,11 @@ import org.testng.annotations.Test;
 
 /**
  *
- * @author Leon Blakey
  */
 @Slf4j
 public class CAPTest {
 	@Test
+	@SuppressWarnings("resource")
 	public void SASLTest() throws Exception {
 		PircTestRunner test = new PircTestRunner(TestUtils.generateConfigurationBuilder()
 				//Also test multiple cap handlers that may or may not fail
@@ -66,6 +65,7 @@ public class CAPTest {
 	}
 
 	@Test
+	@SuppressWarnings("resource")
 	public void enableTest() throws Exception {
 		PircTestRunner test = new PircTestRunner(TestUtils.generateConfigurationBuilder()
 				//Also test multiple cap handlers that may or may not fail
@@ -90,7 +90,8 @@ public class CAPTest {
 	}
 
 	@Test
-	public void capNoneTest() throws Exception {
+	@SuppressWarnings("resource")
+	public void capNoneTest() throws Exception {		
 		PircTestRunner test = new PircTestRunner(TestUtils.generateConfigurationBuilder()
 				//Also test multiple cap handlers that may or may not fail
 				.setCapEnabled(true)
@@ -110,6 +111,7 @@ public class CAPTest {
 	}
 
 	@Test
+	@SuppressWarnings("resource")
 	public void enableUnsupportedCapExceptionTest() throws Exception {
 		PircTestRunner test = new PircTestRunner(TestUtils.generateConfigurationBuilder()
 				//Also test multiple cap handlers that may or may not fail

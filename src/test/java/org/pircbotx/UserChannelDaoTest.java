@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -25,13 +25,11 @@ import static org.testng.Assert.*;
 /**
  * Tests for PircBotX class. Any test that involves processing server lines
  * should be in PircBotXProcessingTest.
- *
- * @author Leon Blakey
  */
 @Test(singleThreaded = true)
 public class UserChannelDaoTest {
 	protected PircBotX smallBot;
-	protected UserChannelDao dao;
+	protected UserChannelDao<User,Channel> dao;
 
 	@BeforeMethod
 	public void setup() {
@@ -75,7 +73,7 @@ public class UserChannelDaoTest {
 	public void channelExistsTest() {
 		dao.createChannel("#aChannel");
 		//Make sure it exists
-		assertTrue(dao.channelExists("#aChannel"));
+		assertTrue(dao.containsChannel("#aChannel"));
 	}
 
 	@Test

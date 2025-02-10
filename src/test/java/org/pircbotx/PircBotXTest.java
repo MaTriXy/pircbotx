@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -17,30 +17,33 @@
  */
 package org.pircbotx;
 
-import com.google.common.collect.Lists;
-import com.google.common.reflect.ClassPath;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.LinkedList;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.testng.Assert.*;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.NoInjection;
 import org.testng.annotations.Test;
 
+import com.google.common.reflect.ClassPath;
+
 /**
  *
- * @author Leon Blakey <leon.m.blakey at gmail.com>
  */
 public class PircBotXTest {
 	private static final Logger log = LoggerFactory.getLogger(PircBotXTest.class);
 
 	@DataProvider
 	public Object[][] genericReturnTestDataProvider() throws IOException {
-		List<Object[]> result = Lists.newLinkedList();
+		List<Object[]> result = new LinkedList<>();
 		for (ClassPath.ClassInfo curClassInfo : ClassPath.from(PircBotXTest.class.getClassLoader()).getTopLevelClassesRecursive("org.pircbotx")) {
 			Class<?> curClass = curClassInfo.load();
 			try {

@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -52,12 +52,6 @@ import org.apache.commons.lang3.StringUtils;
  *
  *
  * @since PircBot 0.9.12
- * @author Origionally by:
- * <a href="http://www.jibble.org/">Paul James Mutton</a> for <a
- * href="http://www.jibble.org/pircbot.php">PircBot</a>
- * <p>
- * Forked and Maintained by Leon Blakey in <a
- * href="http://github.com/thelq/pircbotx">PircBotX</a>
  */
 public final class Colors {
 	/**
@@ -312,7 +306,7 @@ public final class Colors {
 		for (int i = 0; i < length; i++) {
 			char ch = line.charAt(i);
 			//Filter characters
-			if (ch != '\u000f' && ch != '\u0002' && ch != '\u001f' && ch != '\u0016')
+			if (ch != '\u000f' && ch != '\u0002' && ch != '\u001f' && ch != '\u0016' && ch != '\u001d')
 				buffer.append(ch);
 		}
 		return buffer.toString();

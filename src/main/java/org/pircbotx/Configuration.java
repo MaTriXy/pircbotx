@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -17,33 +17,35 @@
  */
 package org.pircbotx;
 
-import static com.google.common.base.Preconditions.*;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 import javax.net.SocketFactory;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.ToString;
-import lombok.experimental.Accessors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.cap.CapHandler;
 import org.pircbotx.cap.EnableCapHandler;
 import org.pircbotx.dcc.DccHandler;
+import org.pircbotx.dcc.DccHandler.PendingFileTransfer;
 import org.pircbotx.dcc.ReceiveChat;
 import org.pircbotx.dcc.ReceiveFileTransfer;
 import org.pircbotx.dcc.SendChat;
 import org.pircbotx.dcc.SendFileTransfer;
+import org.pircbotx.delay.Delay;
+import org.pircbotx.delay.StaticDelay;
+import org.pircbotx.delay.StaticReadonlyDelay;
 import org.pircbotx.exception.IrcException;
 import org.pircbotx.hooks.CoreHooks;
 import org.pircbotx.hooks.Listener;
@@ -56,11 +58,19 @@ import org.pircbotx.output.OutputIRC;
 import org.pircbotx.output.OutputRaw;
 import org.pircbotx.output.OutputUser;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.Lists;
+
+import lombok.Data;
+import lombok.NonNull;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+
 /**
  * Immutable configuration for PircBotX created from
  * {@link Configuration.Builder}
- *
- * @author Leon Blakey
  */
 @Data
 @ToString(exclude = {"serverPassword", "nickservPassword", "nickservCustomMessage"})
@@ -87,7 +97,6 @@ public class Configuration {
 	protected final InetAddress dccPublicAddress;
 	protected final int dccAcceptTimeout;
 	protected final int dccResumeAcceptTimeout;
-	protected final int dccTransferBufferSize;
 	protected final boolean dccPassiveRequest;
 	//Connect information
 	protected final ImmutableList<ServerEntry> servers;
@@ -101,10 +110,11 @@ public class Configuration {
 	protected final int maxLineLength;
 	protected final boolean autoSplitMessage;
 	protected final boolean autoNickChange;
-	protected final long messageDelay;
+	protected final Delay messageDelay;
 	protected final boolean shutdownHookEnabled;
 	protected final ImmutableMap<String, String> autoJoinChannels;
 	protected final boolean onJoinWhoEnabled;
+	protected final boolean onJoinModeEnabled;
 	protected final boolean identServerEnabled;
 	protected final String nickservPassword;
 	protected final String nickservOnSuccess;
@@ -113,7 +123,7 @@ public class Configuration {
 	protected final boolean nickservDelayJoin;
 	protected final boolean userModeHideRealHost;
 	protected final boolean autoReconnect;
-	protected final int autoReconnectDelay;
+	protected final Delay autoReconnectDelay;
 	protected final int autoReconnectAttempts;
 	//Bot classes
 	protected final ListenerManager listenerManager;
@@ -146,7 +156,6 @@ public class Configuration {
 		checkNotNull(builder.getDccPorts(), "DCC ports list cannot be null");
 		checkArgument(builder.getDccAcceptTimeout() > 0, "dccAcceptTimeout must be positive");
 		checkArgument(builder.getDccResumeAcceptTimeout() > 0, "dccResumeAcceptTimeout must be positive");
-		checkArgument(builder.getDccTransferBufferSize() > 0, "dccTransferBufferSize must be positive");
 		checkNotNull(builder.getServers(), "Servers list cannot be null");
 		checkArgument(!builder.getServers().isEmpty(), "Must specify servers to connect to");
 		for (ServerEntry serverEntry : builder.getServers()) {
@@ -159,7 +168,7 @@ public class Configuration {
 		checkArgument(builder.getSocketConnectTimeout() > 0, "Socket connect timeout must greater than 0");
 		checkArgument(builder.getSocketTimeout() > 0, "Socket timeout must greater than 0");
 		checkArgument(builder.getMaxLineLength() > 0, "Max line length must be positive");
-		checkArgument(builder.getMessageDelay() >= 0, "Message delay must be positive");
+		checkNotNull(builder.getMessageDelay(), "Message delay cannot be null");
 		checkNotNull(builder.getAutoJoinChannels(), "Auto join channels map cannot be null");
 		for (Map.Entry<String, String> curEntry : builder.getAutoJoinChannels().entrySet())
 			if (StringUtils.isBlank(curEntry.getKey()))
@@ -171,7 +180,7 @@ public class Configuration {
 		checkArgument(StringUtils.isNotBlank(builder.getNickservOnSuccess()), "Nickserv on success cannot be blank");
 		checkArgument(StringUtils.isNotBlank(builder.getNickservNick()), "Nickserv nick cannot be blank");
 		checkArgument(builder.getAutoReconnectAttempts() > 0, "setAutoReconnectAttempts must be greater than 0");
-		checkArgument(builder.getAutoReconnectDelay() >= 0, "setAutoReconnectDelay must be positive or 0");
+		checkNotNull(builder.getAutoReconnectDelay(), "setAutoReconnectDelay cannot be null");
 		checkNotNull(builder.getListenerManager(), "Must specify listener manager");
 		checkNotNull(builder.getCapHandlers(), "Cap handlers list cannot be null");
 		checkNotNull(builder.getChannelModeHandlers(), "Channel mode handlers list cannot be null");
@@ -196,7 +205,6 @@ public class Configuration {
 		this.dccPublicAddress = builder.getDccPublicAddress();
 		this.dccAcceptTimeout = builder.getDccAcceptTimeout();
 		this.dccResumeAcceptTimeout = builder.getDccResumeAcceptTimeout();
-		this.dccTransferBufferSize = builder.getDccTransferBufferSize();
 		this.dccPassiveRequest = builder.isDccPassiveRequest();
 		this.servers = ImmutableList.copyOf(builder.getServers());
 		this.serverPassword = builder.getServerPassword();
@@ -223,6 +231,7 @@ public class Configuration {
 		this.listenerManager = builder.getListenerManager();
 		this.autoJoinChannels = ImmutableMap.copyOf(builder.getAutoJoinChannels());
 		this.onJoinWhoEnabled = builder.isOnJoinWhoEnabled();
+		this.onJoinModeEnabled = builder.isOnJoinModeEnabled();
 		this.capEnabled = builder.isCapEnabled();
 		this.capHandlers = ImmutableList.copyOf(builder.getCapHandlers());
 		ImmutableSortedMap.Builder<Character, ChannelModeHandler> channelModeHandlersBuilder = ImmutableSortedMap.naturalOrder();
@@ -279,7 +288,7 @@ public class Configuration {
 		/**
 		 * CTCP version response.
 		 */
-		protected String version = "PircBotX " + PircBotX.VERSION + " Java IRC bot - github.com/thelq/pircbotx";
+		protected String version = "PircBotX " + PircBotX.VERSION + " Java IRC bot - github.com/pircbotx/pircbotx";
 		/**
 		 * CTCP finger response
 		 */
@@ -323,7 +332,7 @@ public class Configuration {
 		 * Ports to allow DCC incoming connections, recommended to set multiple
 		 * as DCC connections will be rejected if no free port can be found
 		 */
-		protected List<Integer> dccPorts = Lists.newArrayList();
+		protected List<Integer> dccPorts = new ArrayList<>();
 		/**
 		 * The local address to bind DCC connections to, defaults to null (which
 		 * will be figured out at runtime)
@@ -345,10 +354,6 @@ public class Configuration {
 		 */
 		protected int dccResumeAcceptTimeout = -1;
 		/**
-		 * Size of the DCC file transfer buffer, default 1024 bytes
-		 */
-		protected int dccTransferBufferSize = 1024;
-		/**
 		 * Send DCC requests as passive/reverse requests if not specified
 		 * otherwise, default false
 		 */
@@ -357,7 +362,7 @@ public class Configuration {
 		/**
 		 * List of servers to connect to, easily add with the addServer methods
 		 */
-		protected List<ServerEntry> servers = Lists.newLinkedList();
+		protected List<ServerEntry> servers = new LinkedList<>();
 		/**
 		 * Password for IRC server, default null
 		 */
@@ -410,8 +415,11 @@ public class Configuration {
 		protected boolean autoNickChange = false;
 		/**
 		 * Millisecond delay between sending messages, default 1000 milliseconds
+		 * 
+		 * For backwards compatibility the type is {@link Delay}, BUT it should be a StaticReadOnlyDelay, since 
+		 * it can't be changed after initialization.
 		 */
-		protected long messageDelay = 1000;
+		protected Delay messageDelay = new StaticReadonlyDelay( 1000 );
 		/**
 		 * Enable or disable creating a JVM shutdown hook which will properly
 		 * QUIT the IRC server and shutdown the bot, default true
@@ -420,12 +428,16 @@ public class Configuration {
 		/**
 		 * Map of channels and keys to automatically join upon connecting.
 		 */
-		protected final Map<String, String> autoJoinChannels = Maps.newHashMap();
+		protected final Map<String, String> autoJoinChannels = new HashMap<>();
 		/**
 		 * Enable or disable sending "WHO #channel" upon joining a channel and
 		 * rely only on the NAMES response
 		 */
 		protected boolean onJoinWhoEnabled = true;
+		/**
+		 * Enable or disable sending "MODE #channel" upon joining a channel.
+		 */
+		protected boolean onJoinModeEnabled = true;
 		/**
 		 * Enable or disable use of an existing {@link IdentServer}, default
 		 * false. Note that the IdentServer must be started separately or else
@@ -486,7 +498,7 @@ public class Configuration {
 		/**
 		 * Delay in milliseconds between reconnect attempts, default 0.
 		 */
-		protected int autoReconnectDelay = 0;
+		protected Delay autoReconnectDelay = new StaticDelay(0);
 		/**
 		 * Number of times to attempt to reconnect, default 5.
 		 */
@@ -552,7 +564,6 @@ public class Configuration {
 			this.dccPublicAddress = configuration.getDccPublicAddress();
 			this.dccAcceptTimeout = configuration.getDccAcceptTimeout();
 			this.dccResumeAcceptTimeout = configuration.getDccResumeAcceptTimeout();
-			this.dccTransferBufferSize = configuration.getDccTransferBufferSize();
 			this.dccPassiveRequest = configuration.isDccPassiveRequest();
 			this.servers.clear();
 			this.servers.addAll(configuration.getServers());
@@ -580,6 +591,7 @@ public class Configuration {
 			this.autoJoinChannels.clear();
 			this.autoJoinChannels.putAll(configuration.getAutoJoinChannels());
 			this.onJoinWhoEnabled = configuration.isOnJoinWhoEnabled();
+			this.onJoinModeEnabled = configuration.isOnJoinModeEnabled();
 			this.identServerEnabled = configuration.isIdentServerEnabled();
 			this.capEnabled = configuration.isCapEnabled();
 			this.capHandlers.clear();
@@ -616,7 +628,6 @@ public class Configuration {
 			this.dccPublicAddress = otherBuilder.getDccPublicAddress();
 			this.dccAcceptTimeout = otherBuilder.getDccAcceptTimeout();
 			this.dccResumeAcceptTimeout = otherBuilder.getDccResumeAcceptTimeout();
-			this.dccTransferBufferSize = otherBuilder.getDccTransferBufferSize();
 			this.dccPassiveRequest = otherBuilder.isDccPassiveRequest();
 			this.servers.clear();
 			this.servers.addAll(otherBuilder.getServers());
@@ -643,6 +654,7 @@ public class Configuration {
 			this.autoReconnectAttempts = otherBuilder.getAutoReconnectAttempts();
 			this.autoJoinChannels.putAll(otherBuilder.getAutoJoinChannels());
 			this.onJoinWhoEnabled = otherBuilder.isOnJoinWhoEnabled();
+			this.onJoinModeEnabled = otherBuilder.isOnJoinModeEnabled();
 			this.identServerEnabled = otherBuilder.isIdentServerEnabled();
 			this.capEnabled = otherBuilder.isCapEnabled();
 			this.capHandlers.clear();
@@ -974,12 +986,14 @@ public class Configuration {
 			return new ReceiveChat(user, socket, bot.getConfiguration().getEncoding());
 		}
 
-		public SendFileTransfer createSendFileTransfer(PircBotX bot, Socket socket, User user, File file, long startPosition) {
-			return new SendFileTransfer(bot.getConfiguration(), socket, user, file, startPosition);
+		public SendFileTransfer createSendFileTransfer(PircBotX bot, DccHandler dccHandler,
+				PendingFileTransfer pendingFileTransfer, File file) {
+			return new SendFileTransfer(bot, dccHandler, pendingFileTransfer, file);
 		}
 
-		public ReceiveFileTransfer createReceiveFileTransfer(PircBotX bot, Socket socket, User user, File file, long startPosition, long fileSize) {
-			return new ReceiveFileTransfer(bot.getConfiguration(), socket, user, file, startPosition, fileSize);
+		public ReceiveFileTransfer createReceiveFileTransfer(PircBotX bot, DccHandler dccHandler,
+				PendingFileTransfer pendingFileTransfer, File file) {
+			return new ReceiveFileTransfer(bot, dccHandler, pendingFileTransfer, file);
 		}
 
 		public ServerInfo createServerInfo(PircBotX bot) {

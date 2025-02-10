@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -39,8 +39,6 @@ import org.pircbotx.hooks.types.GenericCTCPEvent;
  * {@link org.pircbotx.Configuration#getListenerManager() bot's ListenerManager},
  * Listeners of this event should <b>not</b> send a response as the user will
  * get two responses
- *
- * @author Leon Blakey
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -48,13 +46,13 @@ public class PingEvent extends Event implements GenericCTCPEvent {
 	/**
 	 * The user that sent the PING request.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final UserHostmask userHostmask;
 	/**
 	 * The user that sent the PING request.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override,
 			@Nullable}))
 	protected final User user;
@@ -62,7 +60,7 @@ public class PingEvent extends Event implements GenericCTCPEvent {
 	 * The channel that received the ping request. A value of <code>null</code>
 	 * means the target was us.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final Channel channel;
 	/**

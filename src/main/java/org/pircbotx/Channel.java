@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -17,29 +17,31 @@
  */
 package org.pircbotx;
 
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.concurrent.AtomicSafeInitializer;
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+import org.pircbotx.exception.NotReadyException;
+import org.pircbotx.hooks.managers.ThreadedListenerManager;
+import org.pircbotx.output.OutputChannel;
+import org.pircbotx.snapshot.ChannelSnapshot;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
+
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.concurrent.AtomicSafeInitializer;
-import org.apache.commons.lang3.concurrent.ConcurrentException;
-import org.pircbotx.hooks.managers.ThreadedListenerManager;
-import org.pircbotx.output.OutputChannel;
-import org.pircbotx.snapshot.ChannelSnapshot;
 
 /**
  * Represents a Channel that we're joined to.
- *
- * @author Leon Blakey
  */
 @ToString(doNotUseGetters = true)
 @EqualsAndHashCode(of = {"name", "bot"})
@@ -166,10 +168,18 @@ public class Channel implements Comparable<Channel> {
 				else {
 					log.trace("Unknown args in channel {} mode '{}', getting fresh mode", name, rawMode);
 					mode = null;
+					modeChangeLatch = new CountDownLatch(1); 
+					
 					send().getMode();
 				}
 			} else {
 				//Parse mode by switching between removing and adding by the existance of a + or - sign
+				if (mode == null) {
+					log.error("Channel mode for {} was null - initializing to empty", this.name);
+					mode = "";
+				}
+					
+				
 				boolean adding = true;
 				for (char curChar : rawMode.toCharArray())
 					if (curChar == '-')
@@ -197,38 +207,43 @@ public class Channel implements Comparable<Channel> {
 	 *
 	 * @return A known good mode, either immediately or soon.
 	 */
-	public String getMode() {
+	public String getMode() throws NotReadyException {
 		synchronized (modeChangeLock) {
 			if (mode != null)
 				return mode;
+			else
+				throw new NotReadyException("Mode not ready yet");
 		}
-
-		log.debug("Pausing channel {} getMode() until server responds with fresh mode", name);
-
-		//While unlikely, mode could be reset. Continuously try
-		int counter = 0;
-		while (true) {
-			log.trace("Attempt #{} to get mode for channel {}", counter++, name);
-			try {
-				CountDownLatch modeWait;
-				synchronized (modeChangeLock) {
-					modeWait = modeChangeLatch;
-				}
-				modeWait.await();
-			} catch (InterruptedException e) {
-				throw new RuntimeException("Waiting for mode response for channel " + name + " interrupted", e);
-			}
-
-			synchronized (modeChangeLock) {
-				if (mode != null)
-					return mode;
-			}
+	}
+	
+	public String getMode(String defaultValue)  {
+		try {
+			return getMode();
+		} catch (NotReadyException e) {
+			return defaultValue;
 		}
 	}
 
-	public boolean containsMode(char modeLetter) {
-		String modeLetters = StringUtils.split(getMode(), ' ')[0];
+	public boolean containsMode(char modeLetter) throws NotReadyException {
+		final String mode = getMode();
+		if (mode.isEmpty())
+			return false;
+		
+		String modeLetters = StringUtils.split(mode, ' ')[0];
 		return StringUtils.contains(modeLetters, modeLetter);
+	}
+	
+	public boolean containsMode(char modeLetter, boolean defaultValue) {
+		try {
+			final String mode = getMode();
+			if (mode.isEmpty())
+				return false;
+			
+			String modeLetters = StringUtils.split(mode, ' ')[0];
+			return StringUtils.contains(modeLetters, modeLetter);
+		} catch (NotReadyException e) {
+			return defaultValue;
+		}
 	}
 
 	/**

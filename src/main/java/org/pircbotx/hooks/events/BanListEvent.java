@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -29,12 +29,11 @@ import org.pircbotx.hooks.types.GenericChannelEvent;
 
 /**
  *
- * @author Leon Blakey
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class BanListEvent extends Event implements GenericChannelEvent {
-	@Getter(onMethod = @_(
+	@Getter(onMethod = @__(
 			@Override))
 	private final Channel channel;
 	private final ImmutableList<Entry> entries;

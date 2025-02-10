@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -58,33 +58,31 @@ import org.pircbotx.hooks.types.GenericDCCEvent;
  * If you allow resuming and the file already partly exists, it will be appended
  * to instead of overwritten. If resuming is not enabled, the file will be
  * overwritten if it already exists.
- *
- * @author Leon Blakey
  * @see FileTransfer
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class IncomingFileTransferEvent extends Event implements GenericDCCEvent {
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override,
 			@Nullable}))
 	protected final User user;
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final UserHostmask userHostmask;
 	protected final String rawFilename;
 	protected final String safeFilename;
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final InetAddress address;
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final int port;
 	protected final long filesize;
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final String token;
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final boolean passive;
 
@@ -111,37 +109,24 @@ public class IncomingFileTransferEvent extends Event implements GenericDCCEvent 
 		return getToken();
 	}
 
-	public ReceiveFileTransfer accept(@NonNull File destination) throws IOException {
-		return getBot().getDccHandler().acceptFileTransfer(this, destination);
-	}
-
-	public ReceiveFileTransfer acceptResume(@NonNull File destination, long startPosition) throws IOException, InterruptedException {
-		return getBot().getDccHandler().acceptFileTransferResume(this, destination, startPosition);
-	}
-
 	/**
 	 * Accept the request and transfer the file now, blocking until finished.
 	 *
 	 * @param destination
 	 * @throws IOException
 	 */
-	public ReceiveFileTransfer acceptAndTransfer(File destination) throws IOException {
-		ReceiveFileTransfer transfer = accept(destination);
-		transfer.transfer();
-		return transfer;
+	public ReceiveFileTransfer accept(@NonNull File destination) throws IOException {
+		return getBot().getDccHandler().acceptFileTransfer(this, destination);
 	}
 
 	/**
-	 * Accept the resume request and transfer the file now, blocking until
-	 * finished.
+	 * Accept the resume request and transfer the file now, blocking until finished.
 	 *
 	 * @param destination
 	 * @throws IOException
 	 */
-	public ReceiveFileTransfer acceptResumeAndTransfer(File destination, long startPosition) throws IOException, InterruptedException {
-		ReceiveFileTransfer transfer = acceptResume(destination, startPosition);
-		transfer.transfer();
-		return transfer;
+	public ReceiveFileTransfer acceptResume(@NonNull File destination, long startPosition) throws IOException, InterruptedException {
+		return getBot().getDccHandler().acceptFileTransferResume(this, destination, startPosition);
 	}
 
 	/**

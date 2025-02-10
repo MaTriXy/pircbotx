@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -16,6 +16,8 @@
  * PircBotX. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.pircbotx.hooks.events;
+
+import com.google.common.collect.ImmutableMap;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.UserHostmask;
@@ -34,36 +36,40 @@ import lombok.NonNull;
  * This event is dispatched whenever someone (possibly us) quits from the
  * server. We will only observe this if the user was in one of the channels to
  * which we are connected.
- *
- * @author Leon Blakey
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class QuitEvent extends Event implements GenericUserEvent, GenericSnapshotEvent {
-	@Getter(onMethod = @_(
+	@Getter(onMethod = @__(
 			@Override))
 	protected final UserChannelDaoSnapshot userChannelDaoSnapshot;
-	@Getter(onMethod = @_(
+	@Getter(onMethod = @__(
 			@Override))
 	protected final UserHostmask userHostmask;
 	/**
 	 * Snapshot of the user as of before the user quit.
 	 */
-	@Getter(onMethod = @_(
+	@Getter(onMethod = @__(
 			@Override))
 	protected final UserSnapshot user;
 	/**
 	 * The reason the user quit from the server.
 	 */
 	protected final String reason;
+	/**
+	 * The IrcV3 tags
+	 */
+	protected final ImmutableMap<String, String> tags;
 
 	public QuitEvent(PircBotX bot, UserChannelDaoSnapshot userChannelDaoSnapshot,
-			@NonNull UserHostmask userHostmask, UserSnapshot user, @NonNull String reason) {
+			@NonNull UserHostmask userHostmask, UserSnapshot user, @NonNull String reason,
+      ImmutableMap<String, String> tags) {
 		super(bot);
 		this.userChannelDaoSnapshot = userChannelDaoSnapshot;
 		this.userHostmask = userHostmask;
 		this.user = user;
 		this.reason = reason;
+		this.tags = tags;
 	}
 
 	/**

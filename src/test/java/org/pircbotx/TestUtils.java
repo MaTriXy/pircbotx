@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -17,18 +17,12 @@
  */
 package org.pircbotx;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.classic.spi.ThrowableProxy;
-import ch.qos.logback.core.AppenderBase;
-import ch.qos.logback.core.spi.FilterReply;
-import ch.qos.logback.core.status.WarnStatus;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.ClassPath;
 import java.io.IOException;
 import java.lang.reflect.Member;
 import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
+import org.pircbotx.delay.StaticReadonlyDelay;
 import org.pircbotx.hooks.events.VoiceEvent;
 import org.pircbotx.hooks.managers.GenericListenerManager;
 import org.pircbotx.hooks.types.GenericEvent;
@@ -36,9 +30,18 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
 import org.testng.collections.Lists;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.ClassPath;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.ThrowableProxy;
+import ch.qos.logback.core.AppenderBase;
+import ch.qos.logback.core.spi.FilterReply;
+import ch.qos.logback.core.status.WarnStatus;
+
 /**
  *
- * @author Leon Blakey
  */
 public class TestUtils {
 	public static final ExceptionStopperAppender exAppender;
@@ -92,14 +95,14 @@ public class TestUtils {
 			classesBuilder.addAll(classPath.getTopLevelClasses(GenericEvent.class.getPackage().getName()));
 		List<Object[]> argumentBuilder = Lists.newArrayList();
 		for (ClassPath.ClassInfo curClassInfo : classesBuilder.build()) {
-			Class loadedClass = curClassInfo.load();
+			Class<?> loadedClass = curClassInfo.load();
 			if (GenericEvent.class.isAssignableFrom(loadedClass) && !loadedClass.equals(GenericEvent.class))
 				argumentBuilder.add(new Object[]{loadedClass});
 		}
 		return argumentBuilder.toArray(new Object[0][]);
 	}
 
-	public static String getRootName(Class aClass) {
+	public static String getRootName(Class<?> aClass) {
 		String name = aClass.getSimpleName();
 
 		if (StringUtils.endsWith(name, "Event"))
@@ -117,7 +120,7 @@ public class TestUtils {
 				.addServer("127.1.1.1")
 				.setListenerManager(new GenericListenerManager())
 				.setName("TestBot")
-				.setMessageDelay(0)
+				.setMessageDelay( new StaticReadonlyDelay(0) )
 				.setShutdownHookEnabled(false)
 				.setAutoReconnect(false)
 				//Optional
@@ -183,6 +186,8 @@ public class TestUtils {
 	}
 	
 	public static class LogException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+
 		public LogException(String message, Throwable cause) {
 			super(message, cause);
 		}

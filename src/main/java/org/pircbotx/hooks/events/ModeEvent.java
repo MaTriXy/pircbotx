@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -17,6 +17,7 @@
  */
 package org.pircbotx.hooks.events;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableList;
 import javax.annotation.Nullable;
 import org.pircbotx.Channel;
@@ -38,8 +39,6 @@ import org.pircbotx.hooks.types.GenericChannelUserEvent;
  * {@link SetChannelKeyEvent}, {@link RemoveChannelKeyEvent},
  * {@link SetChannelLimitEvent}, {@link RemoveChannelLimitEvent},
  * {@link SetChannelBanEvent} or {@link RemoveChannelBanEvent} as appropriate.
- * <p>
- * @author Leon Blakey
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -47,20 +46,20 @@ public class ModeEvent extends Event implements GenericChannelUserEvent {
 	/**
 	 * The channel that the mode operation applies to.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final Channel channel;
 	/**
 	 * The user that set the mode.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override,
 			@Nullable}))
 	protected final UserHostmask userHostmask;
 	/**
 	 * The user that set the mode.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override,
 			@Nullable}))
 	protected final User user;
@@ -69,15 +68,21 @@ public class ModeEvent extends Event implements GenericChannelUserEvent {
 	 */
 	protected final String mode;
 	protected final ImmutableList<String> modeParsed;
+	/**
+	 * The IrcV3 tags
+	 */
+	protected final ImmutableMap<String, String> tags;
 
 	public ModeEvent(PircBotX bot, @NonNull Channel channel, UserHostmask userHostmask,
-			User user, @NonNull String mode, @NonNull ImmutableList<String> modeParsed) {
+			User user, @NonNull String mode, @NonNull ImmutableList<String> modeParsed,
+      ImmutableMap<String, String> tags) {
 		super(bot);
 		this.channel = channel;
 		this.userHostmask = userHostmask;
 		this.user = user;
 		this.mode = mode;
 		this.modeParsed = modeParsed;
+		this.tags = tags;
 	}
 
 	/**

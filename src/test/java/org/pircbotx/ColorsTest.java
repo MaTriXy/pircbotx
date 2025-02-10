@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -17,21 +17,24 @@
  */
 package org.pircbotx;
 
-import com.google.common.collect.Sets;
+import static org.testng.Assert.assertEquals;
+
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Set;
+
 import org.testng.annotations.Test;
-import static org.testng.Assert.*;
+
+import com.google.common.collect.Sets;
 
 /**
  *
- * @author Leon Blakey
  */
 public class ColorsTest {
 	@Test
 	public void lookupTableTest() {
 		//Gather all the field names of the class
-		Set<String> colorNames = Sets.newHashSet();
+		Set<String> colorNames = new HashSet<>();
 		for (Field curField : Colors.class.getFields())
 			if (TestUtils.isRealMember(curField))
 				colorNames.add(curField.getName());

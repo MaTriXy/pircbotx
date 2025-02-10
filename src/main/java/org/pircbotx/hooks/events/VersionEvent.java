@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -39,23 +39,21 @@ import org.pircbotx.hooks.types.GenericChannelEvent;
  * {@link org.pircbotx.Configuration#getListenerManager() bot's ListenerManager},
  * Listeners of this event should <b>not</b> send a response as the user will
  * get two responses
- *
- * @author Leon Blakey
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class VersionEvent extends Event implements GenericCTCPEvent, GenericChannelEvent {
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 		@Override}))
 	protected final UserHostmask userHostmask;
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 		@Override}))
 	protected final User user;
 	/**
 	 * The target channel of the VERSION request. A value of <code>null</code>
 	 * means that that the target is us.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 		@Override,
 		@Nullable}))
 	protected final Channel channel;

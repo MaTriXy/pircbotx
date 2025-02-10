@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2010-2014 Leon Blakey <lord.quackstar at gmail.com>
+/*
+ * Copyright (C) 2010-2022 The PircBotX Project Authors
  *
  * This file is part of PircBotX.
  *
@@ -17,6 +17,7 @@
  */
 package org.pircbotx.hooks.events;
 
+import com.google.common.collect.ImmutableMap;
 import javax.annotation.Nullable;
 import org.pircbotx.User;
 import lombok.Data;
@@ -31,8 +32,6 @@ import org.pircbotx.hooks.types.GenericUserEvent;
 /**
  * This event is dispatched whenever someone (possibly us) changes nick on any
  * of the channels that we are on.
- *
- * @author Leon Blakey
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -48,24 +47,29 @@ public class NickChangeEvent extends Event implements GenericUserEvent {
 	/**
 	 * The user that changed their nick.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override}))
 	protected final UserHostmask userHostmask;
 	/**
 	 * The user that changed their nick.
 	 */
-	@Getter(onMethod = @_({
+	@Getter(onMethod = @__({
 			@Override,
 			@Nullable}))
 	protected final User user;
+	/**
+	 * The IrcV3 tags
+	 */
+	protected final ImmutableMap<String, String> tags;
 
 	public NickChangeEvent(PircBotX bot, @NonNull String oldNick, @NonNull String newNick,
-			@NonNull UserHostmask userHostmask, User user) {
+			@NonNull UserHostmask userHostmask, User user, ImmutableMap<String, String> tags) {
 		super(bot);
 		this.oldNick = oldNick;
 		this.newNick = newNick;
 		this.userHostmask = userHostmask;
 		this.user = user;
+		this.tags = tags;
 	}
 
 	/**
